@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AppSettings>
+  <MouseSettings>
+    <Speed>600</Speed>
+    <Acceleration>1800</Acceleration>
+    <AccelerationThreshold>0.95</AccelerationThreshold>
+    <WheelSpeed>9000</WheelSpeed>
+  </MouseSettings>
+  <NotificationSettings>
+    <ShowBaloonTips>true</ShowBaloonTips>
+    <EnableSoundsOnDisable>false</EnableSoundsOnDisable>
+    <AutoDisableHelpShown>true</AutoDisableHelpShown>
+    <HideNotificationIcon>false</HideNotificationIcon>
+  </NotificationSettings>
+  <SteamSettings>
+    <ShowInAppInSteam>true</ShowInAppInSteam>
+  </SteamSettings>
+  <ControllerSettings>
+    <LeftStickDeadZone>7849</LeftStickDeadZone>
+    <RightStickDeadZone>8689</RightStickDeadZone>
+  </ControllerSettings>
+  <DisablerSettings>
+    <PerProcessDisable>false</PerProcessDisable>
+  </DisablerSettings>
+  <KeyboardSettings>
+    <Type>Spiral</Type>
+  </KeyboardSettings>
+  <StartupSettings>
+    <RunOnStartup>true</RunOnStartup>
+    <RunOnAdminAndLockScreen>true</RunOnAdminAndLockScreen>
+  </StartupSettings>
+  <ShareVoiceSettings>
+    <Enabled>true</Enabled>
+    <TapToggleMode>true</TapToggleMode>
+  </ShareVoiceSettings>
+</AppSettings>

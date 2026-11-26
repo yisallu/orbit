@@ -16,8 +16,9 @@
 - **Apple 级极简直观交互**：
   - 采用 macOS Sequoia 暗色分组设计与左右分栏手柄对照视图，鼠标悬停任意键位或物理按下手柄按键均可实时高亮联动。
   - 点击任意按键直接开启 **实时物理按键录制器** 或一键点选鼠标、窗口、多屏切换与多媒体磁贴，所有改动即时自动保存。
-- **100% 兼容 Controller Companion 配置生态**：
-  - 首次运行自动检测并无损迁移本地 `%LOCALAPPDATA%\ControllerCompanion` 下的 `Settings.xml`、`MouseModeBindings.cfg`、`KeyboardModeBindings.cfg`、`*.ccp` 应用专属配置（含图标与顺序覆盖规则）、创意工坊配置及白名单。
+- **开箱即用预设 & 100% 兼容 Controller Companion 生态**：
+  - 随仓库与发行包内置整套打磨完善的默认配置（[`config/`](config)）：包含高频桌面快捷键、浏览器（`Chrome` / `Zen`）、多款游戏与视觉小说专属键位配置（`*.ccp`）以及 160+ 项日常软件/AVG 全屏免打扰白名单，解压即用。
+  - 同时完美兼容原版 `%LOCALAPPDATA%\ControllerCompanion` 下的 `Settings.xml`、`*.cfg`、`*.ccp` 及创意工坊配置，支持一键无缝导入。
   - 逐像素还原指针基础移动速度、$\ge 95\%$ 推满爆发加速度曲线与右摇杆高刷平滑滚轮手感。
 - **原生支持中文拼音输入法的悬浮虚拟键盘**：
   - 左摇杆按下 (`LS`) 呼出 `WS_EX_NOACTIVATE` 无焦点抢占的全尺寸 QWERTY 悬浮键盘，直接唤醒微软拼音 / 搜狗 / 豆包输入法选词；`RB` 空格直上屏、`LB` 一键切中/英、`X` 按住连删、右摇杆移动光标与翻页。

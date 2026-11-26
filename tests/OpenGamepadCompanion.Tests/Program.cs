@@ -72,8 +72,11 @@ public static class Program
             Console.WriteLine("[3/4] Verifying pixel-exact Mouse Physics & Scroll curve parity...");
             VerifyMousePhysicsParity();
 
-            Console.WriteLine("[4/4] Verifying CompanionEngine state machine & Fullscreen Game VK lock...");
+            Console.WriteLine("[4/5] Verifying CompanionEngine state machine & Fullscreen Game VK lock...");
             VerifyEngineSimulation(config);
+
+            Console.WriteLine("[5/5] Verifying built-in code defaults & bundled default config/ directory...");
+            VerifyBuiltInAndBundledDefaults();
 
             Console.WriteLine($"\nALL {_passed} ASSERTIONS PASSED SUCCESSFULLY!");
             return 0;
@@ -273,6 +276,45 @@ public static class Program
         poller.NextState = new NormalizedPadState { IsConnected = true, ConnectedCount = 1 };
         engine.Step(0.01);
         AssertEqual(CompanionStatus.Enabled, engine.CurrentStatus, "Back+Start overrides fullscreen auto-pause");
+    }
+
+    private static void VerifyBuiltInAndBundledDefaults()
+    {
+        string emptyDir = Path.Combine(Path.GetTempPath(), $"OrbitEmptyDefaults_{Guid.NewGuid():N}");
+        try
+        {
+            var zeroFileConfig = new ConfigManager(emptyDir);
+            zeroFileConfig.ReloadAll();
+            AssertEqual(600f, zeroFileConfig.Settings.MouseSettings.Speed, "BuiltIn.Speed");
+            AssertEqual(1800f, zeroFileConfig.Settings.MouseSettings.Acceleration, "BuiltIn.Acceleration");
+            AssertEqual(9000f, zeroFileConfig.Settings.MouseSettings.WheelSpeed, "BuiltIn.WheelSpeed");
+            AssertCmd(zeroFileConfig.DesktopBindings, ModifierLayer.Primary, PadControl.B, "mouse right");
+            AssertCmd(zeroFileConfig.DesktopBindings, ModifierLayer.Primary, PadControl.Guide, "key RMenu norepeat");
+            AssertCmd(zeroFileConfig.DesktopBindings, ModifierLayer.Back, PadControl.LeftTrigger, "key LWin+LShiftKey+Left norepeat");
+            AssertCmd(zeroFileConfig.KeyboardBindings, ModifierLayer.Primary, PadControl.Y, "key F4 norepeat");
+        }
+        finally
+        {
+            try { Directory.Delete(emptyDir, recursive: true); } catch { }
+        }
+
+        // Locate repository root config/ if present
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Orbit.slnx")))
+            dir = dir.Parent;
+
+        if (dir != null)
+        {
+            string repoConfigDir = Path.Combine(dir.FullName, "config");
+            var repoConfig = new ConfigManager(repoConfigDir);
+            repoConfig.ReloadAll();
+            AssertTrue(repoConfig.Profiles.Count >= 10, "Bundled profiles count >= 10");
+            AssertTrue(repoConfig.DisabledProcesses.Count >= 17, "Bundled DisabledProcesses >= 17");
+            AssertTrue(repoConfig.IgnoredFullscreenProcesses.Count >= 160, "Bundled IgnoredFullscreenProcesses >= 160");
+            AssertTrue(repoConfig.FindProfileForProcess("chrome") != null, "Bundled chrome profile");
+            AssertTrue(repoConfig.FindProfileForProcess("zen") != null, "Bundled zen profile");
+            AssertTrue(repoConfig.FindProfileForProcess("AI-Syoujyo") != null, "Bundled AI-Syoujyo profile");
+        }
     }
 
     private static void AssertCmd(BindingProfileMap map, ModifierLayer layer, PadControl ctrl, string expectedRawCmd)

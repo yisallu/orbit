@@ -1,0 +1,17 @@
+Atelier_Ryza
+MBAA
+Atelier_Shallie
+Eroico_Re
+CodeVein-Win64-Shipping
+rpcs3
+まじこいＡ－１
+Cemu
+setup
+SearchUI
+StartUpTool
+ControllerCompanion
+YuanShen
+Seiten
+BH3
+SkyrimSE
+skse64_loader

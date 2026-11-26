@@ -17,5 +17,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenGamepadCompanion.Core\OpenGamepadCompanion.Core.csproj" />
+    <None Include="..\..\config\**" Link="config\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

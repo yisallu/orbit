@@ -12,9 +12,9 @@ public enum VirtualKeyboardType
 public sealed class MouseSettings
 {
     public const float SpeedDefault = 600f;
-    public const float AccelerationDefault = 1500f;
+    public const float AccelerationDefault = 1800f;
     public const float AccelerationThresholdDefault = 0.95f;
-    public const float WheelSpeedDefault = 4800f;
+    public const float WheelSpeedDefault = 9000f;
 
     public float Speed { get; set; } = SpeedDefault;
     public float Acceleration { get; set; } = AccelerationDefault;
@@ -27,8 +27,8 @@ public sealed class MouseSettings
 public sealed class NotificationSettings
 {
     public bool ShowBalloonTips { get; set; } = true;
-    public bool EnableSoundsOnDisable { get; set; } = true;
-    public bool AutoDisableHelpShown { get; set; } = false;
+    public bool EnableSoundsOnDisable { get; set; } = false;
+    public bool AutoDisableHelpShown { get; set; } = true;
     public bool HideNotificationIcon { get; set; } = false;
 
     public NotificationSettings Clone() => (NotificationSettings)MemberwiseClone();
@@ -36,7 +36,7 @@ public sealed class NotificationSettings
 
 public sealed class SteamSettings
 {
-    public bool ShowInAppInSteam { get; set; } = false;
+    public bool ShowInAppInSteam { get; set; } = true;
 
     public SteamSettings Clone() => (SteamSettings)MemberwiseClone();
 }
@@ -136,15 +136,15 @@ public sealed class AppSettings
             if (balloonEl != null && bool.TryParse(balloonEl.Value.Trim(), out bool bVal))
                 settings.NotificationSettings.ShowBalloonTips = bVal;
 
-            settings.NotificationSettings.EnableSoundsOnDisable = ReadBool(notif, "EnableSoundsOnDisable", true);
-            settings.NotificationSettings.AutoDisableHelpShown = ReadBool(notif, "AutoDisableHelpShown", false);
+            settings.NotificationSettings.EnableSoundsOnDisable = ReadBool(notif, "EnableSoundsOnDisable", false);
+            settings.NotificationSettings.AutoDisableHelpShown = ReadBool(notif, "AutoDisableHelpShown", true);
             settings.NotificationSettings.HideNotificationIcon = ReadBool(notif, "HideNotificationIcon", false);
         }
 
         var steam = root.Element("SteamSettings");
         if (steam != null)
         {
-            settings.SteamSettings.ShowInAppInSteam = ReadBool(steam, "ShowInAppInSteam", false);
+            settings.SteamSettings.ShowInAppInSteam = ReadBool(steam, "ShowInAppInSteam", true);
         }
 
         var ctrl = root.Element("ControllerSettings");

@@ -6,9 +6,6 @@
 *.pdb
 *.log
 
-# Local personal user configuration (keep strictly private, never commit)
-/config/
-
 # IDE & OS files
 .vs/
 .idea/

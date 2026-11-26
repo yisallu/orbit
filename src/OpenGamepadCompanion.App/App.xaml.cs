@@ -269,10 +269,6 @@ public partial class App : Application
         var dir = new DirectoryInfo(baseDir);
         for (int i = 0; i < 6 && dir != null; i++)
         {
-            string candidate = Path.Combine(dir.FullName, "config");
-            if (Directory.Exists(candidate) && File.Exists(Path.Combine(candidate, "Settings.xml")))
-                return candidate;
-
             if (File.Exists(Path.Combine(dir.FullName, "Orbit.slnx")) ||
                 File.Exists(Path.Combine(dir.FullName, "OpenGamepadCompanion.slnx")))
                 return Path.Combine(dir.FullName, "config");
@@ -283,6 +279,16 @@ public partial class App : Application
         string localPortable = Path.Combine(baseDir, "config");
         if (Directory.Exists(localPortable))
             return localPortable;
+
+        dir = new DirectoryInfo(baseDir);
+        for (int i = 0; i < 6 && dir != null; i++)
+        {
+            string candidate = Path.Combine(dir.FullName, "config");
+            if (Directory.Exists(candidate) && File.Exists(Path.Combine(candidate, "Settings.xml")))
+                return candidate;
+
+            dir = dir.Parent;
+        }
 
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OrbitGamepad");
     }
