@@ -1,0 +1,475 @@
+<Window x:Class="OpenGamepadCompanion.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Orbit"
+        Width="1020" Height="680"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        AllowDrop="True"
+        Drop="OnWindowDrop">
+
+    <!-- Apple macOS Sequoia Frosted Dark Window Shell -->
+    <Border CornerRadius="16"
+            Background="#161618"
+            BorderBrush="#323238"
+            BorderThickness="1"
+            Margin="14">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="28" ShadowDepth="8" Opacity="0.58" Color="Black"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="212"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- =========================================================
+                 LEFT SIDEBAR (macOS System Settings Sidebar)
+                 ========================================================= -->
+            <Border Grid.Column="0"
+                    CornerRadius="15,0,0,15"
+                    Background="#1E1E22"
+                    BorderBrush="#2C2C32"
+                    BorderThickness="0,0,1,0">
+                <Grid Margin="14,16,14,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- App Brand Header (Draggable) -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4,2,0,16" Cursor="SizeAll" Background="Transparent" MouseLeftButtonDown="OnTitleBarDrag">
+                        <Border Width="32" Height="32" CornerRadius="8" Background="#25252C" BorderBrush="#383842" BorderThickness="1" Margin="0,0,10,0">
+                            <ContentControl x:Name="BrandLogoHost" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Orbit" FontSize="16" FontWeight="Bold" Foreground="#F5F5F7"/>
+                            <TextBlock Text="桌面手柄操控" FontSize="11" Foreground="#8E8E93"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Live Controller Status & Master Switch Card -->
+                    <Border Grid.Row="1" Background="#26262C" BorderBrush="#34343C" BorderThickness="1" CornerRadius="10" Padding="11,9" Margin="0,0,0,16">
+                        <DockPanel>
+                            <StackPanel VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Ellipse x:Name="StatusPulseDot" Width="8" Height="8" Fill="#30D158" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="SidebarStatusText" Text="已就绪" FontSize="12.5" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+                                </StackPanel>
+                                <TextBlock x:Name="SidebarProfileText" Text="当前：桌面默认" FontSize="11" Foreground="#8E8E93" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" MaxWidth="118"/>
+                            </StackPanel>
+                            <CheckBox x:Name="MasterEnableSwitch" IsChecked="True" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnStatusToggleClick" ToolTip="总开关 (快捷键 Back + Start)" Style="{StaticResource PillToggleStyle}"/>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- 4 Clear Navigation Rows -->
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="功能设置" FontSize="11" FontWeight="SemiBold" Foreground="#636368" Margin="8,0,0,6"/>
+                        <Button x:Name="NavBtnCanvas" Click="OnNavCanvasClick" Style="{StaticResource SidebarNavButtonStyle}"/>
+                        <Button x:Name="NavBtnFeel" Click="OnNavFeelClick" Style="{StaticResource SidebarNavButtonStyle}"/>
+                        <Button x:Name="NavBtnApps" Click="OnNavAppsClick" Style="{StaticResource SidebarNavButtonStyle}"/>
+                        <Button x:Name="NavBtnSystem" Click="OnNavSystemClick" Style="{StaticResource SidebarNavButtonStyle}"/>
+                    </StackPanel>
+
+                    <!-- Sidebar Bottom Quick Actions -->
+                    <StackPanel Grid.Row="3">
+                        <Button x:Name="SidebarKeyboardBtn" Height="34" Margin="0,0,0,6" Click="OnPreviewKeyboardClick" Style="{StaticResource IconPillButtonStyle}"/>
+                        <Button x:Name="SidebarQuitBtn" Height="34" Click="OnQuitOrbitClick" Style="{StaticResource IconPillButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- =========================================================
+                 RIGHT MAIN STAGE
+                 ========================================================= -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="58"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- TOP HEADER & WINDOW BAR (Draggable) -->
+                <Grid Grid.Row="0" Margin="24,10,18,0" Background="Transparent" MouseLeftButtonDown="OnTitleBarDrag">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Page Title -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="PageSectionTitle"
+                                   Text="按键映射"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#F5F5F7"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Center Segmented Controls (Shown on Home Page 0) -->
+                    <StackPanel x:Name="HomeTopControlsBar"
+                                Grid.Column="1"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Margin="0,0,16,0">
+
+                        <!-- Segmented Control 1: Target Profile Selector -->
+                        <Border Background="#232328" BorderBrush="#323238" BorderThickness="1" CornerRadius="8" Padding="3" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="TargetDesktopBtn" Content="桌面默认" Click="OnTargetDesktopClick" Style="{StaticResource SegmentItemButtonStyle}"/>
+                                <Button x:Name="TargetKeyboardBtn" Content="虚拟键盘" Click="OnTargetKeyboardClick" Style="{StaticResource SegmentItemButtonStyle}"/>
+                                <Button x:Name="TargetAppMenuBtn" Content="应用配置 ▾" Click="OnTargetAppMenuClick" Style="{StaticResource SegmentItemButtonStyle}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Segmented Control 2: Primary vs Secondary Layer -->
+                        <Border Background="#232328" BorderBrush="#323238" BorderThickness="1" CornerRadius="8" Padding="3">
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="LayerPrimaryBtn" Content="默认主层" Click="OnLayerPrimaryClick" Style="{StaticResource SegmentItemButtonStyle}"/>
+                                <Button x:Name="LayerBackBtn" Content="按住 Back 副层" Click="OnLayerBackClick" Style="{StaticResource SegmentItemButtonStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Top-Right Window Minimize / Hide to Tray Button -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="TopMinimizeBtn"
+                                Width="32" Height="32"
+                                Padding="0"
+                                Click="OnMinimizeTrayClick"
+                                ToolTip="关闭窗口并保持后台托盘运行"
+                                Style="{StaticResource IconPillButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- =========================================================
+                     VIEW 0: APPLE-STYLE CONTROLLER CALLOUT REMAPPING VIEW
+                     ========================================================= -->
+                <Grid x:Name="ViewCanvas" Grid.Row="1" Margin="24,10,24,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="248"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="248"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left Grouped Card: Left-hand Controls -->
+                        <Border Grid.Column="0" VerticalAlignment="Top" Background="#222227" BorderBrush="#303036" BorderThickness="1" CornerRadius="12" Padding="0,4">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="520">
+                                <StackPanel x:Name="LeftMappingRowsPanel"/>
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- Center: Clean Precision Controller Diagram with Live Highlight -->
+                        <Grid Grid.Column="1" Margin="8,0">
+                            <Viewbox Stretch="Uniform" MaxWidth="250" VerticalAlignment="Center" Margin="0,0,0,28">
+                                <Canvas x:Name="ControllerBlueprintCanvas" Width="300" Height="260"/>
+                            </Viewbox>
+                            <TextBlock x:Name="CenterHintText"
+                                       Text="点击任意一行或手柄部位即可修改按键"
+                                       FontSize="12"
+                                       Foreground="#6E6E73"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,12"/>
+                        </Grid>
+
+                        <!-- Right Grouped Card: Right-hand & Center Controls -->
+                        <Border Grid.Column="2" VerticalAlignment="Top" Background="#222227" BorderBrush="#303036" BorderThickness="1" CornerRadius="12" Padding="0,4">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="520">
+                                <StackPanel x:Name="RightMappingRowsPanel"/>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- =========================================================
+                     VIEW 1: POINTER & STICK FEEL (macOS Grouped Cards)
+                     ========================================================= -->
+                <Grid x:Name="ViewFeel" Grid.Row="1" Margin="24,12,24,20" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.12*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="0.88*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Card: Pointer & Scroll -->
+                    <Border Grid.Column="0" Background="#222227" BorderBrush="#303036" BorderThickness="1" CornerRadius="12" Padding="20">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="138"/>
+                                <RowDefinition Height="18"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                                <TextBlock Text="鼠标移动与滚轮曲线" FontSize="14.5" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+                                <TextBlock Text="轻推摇杆匀速精准定位，推到底（≥95%）触发平滑加速跨屏" FontSize="12" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <Border Grid.Row="1" Background="#19191D" BorderBrush="#2C2C32" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+                                <Canvas x:Name="VelocityCurveCanvas" Width="380" Height="136"/>
+                            </Border>
+
+                            <StackPanel Grid.Row="3" VerticalAlignment="Center">
+                                <!-- Speed -->
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="基础移动速度" Foreground="#E5E5EA" FontSize="13"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="ValMouseSpeed" Text="600 px/s" Foreground="#0A84FF" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <Button x:Name="ResetSpeedBtn" Width="24" Height="24" Padding="0" Click="OnResetSpeedClick" ToolTip="恢复默认 (600)" Style="{StaticResource IconPillButtonStyle}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Slider x:Name="SliderMouseSpeed" Minimum="120" Maximum="2200" ValueChanged="OnFeelSliderChanged" Style="{StaticResource OrbitSliderStyle}" Margin="0,0,0,16"/>
+
+                                <!-- Acceleration -->
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="推到底爆发加速度" Foreground="#E5E5EA" FontSize="13"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="ValMouseAccel" Text="+1800" Foreground="#0A84FF" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <Button x:Name="ResetAccelBtn" Width="24" Height="24" Padding="0" Click="OnResetAccelClick" ToolTip="恢复默认 (1500)" Style="{StaticResource IconPillButtonStyle}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Slider x:Name="SliderMouseAccel" Minimum="0" Maximum="4200" ValueChanged="OnFeelSliderChanged" Style="{StaticResource OrbitSliderStyle}" Margin="0,0,0,16"/>
+
+                                <!-- Scroll -->
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="右摇杆滚轮速度" Foreground="#E5E5EA" FontSize="13"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="ValWheelSpeed" Text="9000" Foreground="#0A84FF" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <Button x:Name="ResetWheelBtn" Width="24" Height="24" Padding="0" Click="OnResetWheelClick" ToolTip="恢复默认 (4800)" Style="{StaticResource IconPillButtonStyle}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Slider x:Name="SliderWheelSpeed" Minimum="600" Maximum="18000" ValueChanged="OnFeelSliderChanged" Style="{StaticResource OrbitSliderStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Right Card: Deadzone Scopes -->
+                    <Border Grid.Column="2" Background="#222227" BorderBrush="#303036" BorderThickness="1" CornerRadius="12" Padding="20">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="162"/>
+                                <RowDefinition Height="16"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                                <TextBlock Text="摇杆防漂移死区" FontSize="14.5" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+                                <TextBlock Text="虚线圆内的小幅物理抖动将被自动忽略" FontSize="12" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <UniformGrid Grid.Row="1" Rows="1" Columns="2">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Canvas x:Name="LeftRadarCanvas" Width="124" Height="124"/>
+                                    <TextBlock Text="左摇杆" Foreground="#98989F" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Canvas x:Name="RightRadarCanvas" Width="124" Height="124"/>
+                                    <TextBlock Text="右摇杆" Foreground="#98989F" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </UniformGrid>
+
+                            <StackPanel Grid.Row="3" VerticalAlignment="Center">
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="左摇杆死区范围" Foreground="#E5E5EA" FontSize="13"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="ValLeftDz" Text="24%" Foreground="#0A84FF" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <Button x:Name="ResetLeftDzBtn" Width="24" Height="24" Padding="0" Click="OnResetLeftDzClick" ToolTip="恢复默认 (24%)" Style="{StaticResource IconPillButtonStyle}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Slider x:Name="SliderLeftDz" Minimum="0" Maximum="21000" ValueChanged="OnFeelSliderChanged" Style="{StaticResource OrbitSliderStyle}" Margin="0,0,0,22"/>
+
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="右摇杆死区范围" Foreground="#E5E5EA" FontSize="13"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="ValRightDz" Text="27%" Foreground="#0A84FF" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <Button x:Name="ResetRightDzBtn" Width="24" Height="24" Padding="0" Click="OnResetRightDzClick" ToolTip="恢复默认 (27%)" Style="{StaticResource IconPillButtonStyle}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <Slider x:Name="SliderRightDz" Minimum="0" Maximum="21000" ValueChanged="OnFeelSliderChanged" Style="{StaticResource OrbitSliderStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- =========================================================
+                     VIEW 2: PER-APP PROFILES & EXCLUSION LISTS
+                     ========================================================= -->
+                <Grid x:Name="ViewApps" Grid.Row="1" Margin="24,8,24,20" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="14"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="当切换到对应软件或游戏窗口时自动切换按键方案。点击任意卡片即可进入按键编辑，也可直接把 .exe 拖进窗口。"
+                               FontSize="12.5"
+                               Foreground="#8E8E93"
+                               Margin="0,0,0,12"/>
+
+                    <DockPanel Grid.Row="1">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="BtnAddAppExe" Margin="0,0,8,0" Click="OnAddAppExeClick" Style="{StaticResource AccentPillButtonStyle}"/>
+                            <Button x:Name="BtnAddAppRecent" Margin="0,0,8,0" Click="OnAddAppRecentClick" Style="{StaticResource IconPillButtonStyle}"/>
+                            <Button x:Name="BtnImportCcp" Content="导入 .ccp" Click="OnImportCcpClick" Style="{StaticResource IconPillButtonStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="BtnFullscreenWhitelist" Margin="0,0,8,0" Click="OnOpenFullscreenWhitelistClick" Style="{StaticResource IconPillButtonStyle}"/>
+                            <Button x:Name="BtnDisabledList" Click="OnOpenDisabledListClick" Style="{StaticResource IconPillButtonStyle}"/>
+                        </StackPanel>
+                    </DockPanel>
+
+                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                        <WrapPanel x:Name="AppCardsWrap"/>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- =========================================================
+                     VIEW 3: macOS SYSTEM SETTINGS GROUPED LIST
+                     ========================================================= -->
+                <Grid x:Name="ViewSystem" Grid.Row="1" Margin="24,10,24,20" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="启动与权限" FontSize="12" FontWeight="SemiBold" Foreground="#8E8E93" Margin="4,0,0,6"/>
+                            <Border Background="#222227" BorderBrush="#303036" BorderThickness="1" CornerRadius="12" Margin="0,0,0,18">
+                                <StackPanel>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="开机自动启动" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="登录 Windows 桌面时自动在后台静默运行 Orbit" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleStartup" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="以最高权限运行（支持管理员窗口操控）" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="允许鼠标与按键模拟穿透高权限程序窗口，开启后请点底部“写入系统自启”生效" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleAdmin" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnAdminToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="语音输入辅助（Xbox 手柄分享键）" FontSize="12" FontWeight="SemiBold" Foreground="#8E8E93" Margin="4,0,0,6"/>
+                            <Border Background="#222227" BorderBrush="#303036" BorderThickness="1" CornerRadius="12" Margin="0,0,0,18">
+                                <StackPanel>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="分享键触发豆包语音输入（Share → 右 Alt）" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock x:Name="ShareVoiceDriverDesc" Text="通过 Interception 硬件级直通发送右 Alt，绕过输入法模拟过滤" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Button Content="测试触发" Padding="10,4" FontSize="12" Margin="0,0,12,0" Click="OnTestShareVoiceClick" Style="{StaticResource IconPillButtonStyle}"/>
+                                            <CheckBox x:Name="ToggleShareVoice" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="语音采用单击开关模式" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="按一下分享键开始说话、再按一下关闭（100ms 脉冲）；关闭则为按住说话、松手结束" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleShareTapMode" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Text="行为与手柄增强" FontSize="12" FontWeight="SemiBold" Foreground="#8E8E93" Margin="4,0,0,6"/>
+                            <Border Background="#222227" BorderBrush="#303036" BorderThickness="1" CornerRadius="12" Margin="0,0,0,18">
+                                <StackPanel>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="独占 Xbox 导航键（禁止弹出 Game Bar）" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="阻止系统自带游戏栏抢占中间的西瓜键，确保您绑定的 AltGr / 快捷键正常触发" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleBlockGameBar" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnBlockGameBarClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="按当前进程独立暂停（而非全局暂停）" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="开启后按 Back + Start 仅将当前前台软件加入禁用名单，切回桌面仍保持可用" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="TogglePerProc" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="状态切换气泡通知" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="手动暂停或从全屏游戏自动恢复控制时弹出轻量通知" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleBalloon" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="暂停控制时播放提示音" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="按 Back + Start 暂停手柄模拟时发出声音反馈" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleSound" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="虚拟键盘半透明毛玻璃背景" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="左摇杆按下呼出的悬浮键盘保持微透底色，不遮挡下方内容" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleSpiralRing" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
+                                            <TextBlock Text="保留 Steam 配置状态兼容项" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="与原版 Settings.xml 中的 ShowInAppInSteam 字段保持双向兼容" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleSteam" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnPrefToggleClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Bottom Utility Actions -->
+                    <DockPanel Grid.Row="1" Margin="0,10,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="BtnRegisterSystemTask" Margin="0,0,8,0" Click="OnRegisterSystemStartupClick" Style="{StaticResource AccentPillButtonStyle}"/>
+                            <Button x:Name="BtnSyncOriginal" Margin="0,0,8,0" Click="OnSyncOriginalClick" Style="{StaticResource IconPillButtonStyle}"/>
+                            <Button x:Name="BtnOpenConfigDir" Click="OnOpenConfigDirClick" Style="{StaticResource IconPillButtonStyle}"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="StatusToastText"
+                                   Text=""
+                                   Foreground="#30D158"
+                                   FontSize="12.5"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"/>
+                    </DockPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

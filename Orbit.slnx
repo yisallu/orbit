@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OpenGamepadCompanion.App/OpenGamepadCompanion.App.csproj" />
+    <Project Path="src/OpenGamepadCompanion.Core/OpenGamepadCompanion.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OpenGamepadCompanion.Tests/OpenGamepadCompanion.Tests.csproj" />
+  </Folder>
+</Solution>

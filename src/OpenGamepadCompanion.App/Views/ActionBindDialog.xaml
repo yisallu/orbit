@@ -1,0 +1,112 @@
+<Window x:Class="OpenGamepadCompanion.App.Views.ActionBindDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Orbit Bind"
+        Width="560" Height="450"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        PreviewKeyDown="OnWindowPreviewKeyDown">
+    <Border CornerRadius="16"
+            Background="#1C1C20"
+            BorderBrush="#363640"
+            BorderThickness="1"
+            Margin="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.6" Color="Black"/>
+        </Border.Effect>
+
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Header: Slot Badge + Close Icon -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,14" MouseLeftButtonDown="OnDragBarMouseDown">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="#260A84FF" BorderBrush="#0A84FF" BorderThickness="1" CornerRadius="7" Padding="10,4" Margin="0,0,10,0">
+                        <TextBlock x:Name="SlotBadgeText" Text="B 键" Foreground="#409CFF" FontWeight="SemiBold" FontSize="13"/>
+                    </Border>
+                    <TextBlock x:Name="CurrentBoundText" Text="当前：鼠标右键" Foreground="#94A3B8" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button x:Name="BtnClose" Width="30" Height="30" Padding="0" HorizontalAlignment="Right" Click="OnCancelClick" Style="{StaticResource IconPillButtonStyle}"/>
+            </DockPanel>
+
+            <!-- 3 Visual Mode Tabs (Icons + short label) -->
+            <UniformGrid Grid.Row="1" Rows="1" Columns="3" Margin="0,0,0,14">
+                <Button x:Name="TabKeyBtn" Margin="0,0,6,0" Click="OnTabKeyClick" Style="{StaticResource IconPillButtonStyle}"/>
+                <Button x:Name="TabMouseBtn" Margin="3,0,3,0" Click="OnTabMouseClick" Style="{StaticResource IconPillButtonStyle}"/>
+                <Button x:Name="TabSystemBtn" Margin="6,0,0,0" Click="OnTabSystemClick" Style="{StaticResource IconPillButtonStyle}"/>
+            </UniformGrid>
+
+            <!-- Mode 0: Live Keyboard Shortcut Recorder -->
+            <Grid x:Name="PaneKeyRecorder" Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Border x:Name="RecorderBox"
+                        Grid.Row="0"
+                        Background="#24242A"
+                        BorderBrush="#0A84FF"
+                        BorderThickness="1.2"
+                        CornerRadius="12"
+                        Cursor="Hand"
+                        MouseLeftButtonDown="OnRecorderBoxClick">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <WrapPanel x:Name="KeyCapsPanel" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBlock x:Name="RecorderHintText"
+                                   Text="直接按下键盘上的任意按键或组合键（如 Ctrl + W / F8）"
+                                   Foreground="#64748B"
+                                   FontSize="12.5"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Quick Special Key Chips (For OS-intercepted keys like Win / AltGr / Media) -->
+                <WrapPanel x:Name="QuickSpecialKeysPanel" Grid.Row="1" Margin="0,12,0,10"/>
+
+                <!-- Auto-repeat + Apply Recorded -->
+                <DockPanel Grid.Row="2">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox x:Name="ToggleAutoRepeat" Style="{StaticResource PillToggleStyle}" VerticalAlignment="Center"/>
+                        <TextBlock Text="按住自动连发" Foreground="#CBD5E1" FontSize="13" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
+                    <Button x:Name="BtnSaveRecordedKey"
+                            Content="使用此按键"
+                            HorizontalAlignment="Right"
+                            Padding="18,7"
+                            Click="OnConfirmRecordedKeyClick"
+                            Style="{StaticResource AccentPillButtonStyle}"/>
+                </DockPanel>
+            </Grid>
+
+            <!-- Mode 1: Mouse & Stick Visual Tile Grid -->
+            <ScrollViewer x:Name="PaneMouseTiles" Grid.Row="2" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <WrapPanel x:Name="MouseTilesWrap"/>
+            </ScrollViewer>
+
+            <!-- Mode 2: System, Media & App Launch Tile Grid -->
+            <ScrollViewer x:Name="PaneSystemTiles" Grid.Row="2" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                <WrapPanel x:Name="SystemTilesWrap"/>
+            </ScrollViewer>
+
+            <!-- Footer Utility Actions: Clear (Unbind) & Reset Default -->
+            <DockPanel Grid.Row="3" Margin="0,14,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BtnClearSlot" Click="OnClearSlotClick" Margin="0,0,8,0" ToolTip="解除此按键绑定" Style="{StaticResource IconPillButtonStyle}"/>
+                    <Button x:Name="BtnResetSlot" Click="OnResetSlotClick" ToolTip="恢复此按键默认值" Style="{StaticResource IconPillButtonStyle}"/>
+                </StackPanel>
+                <TextBlock Text="点击任意动作磁贴即刻生效并自动保存" Foreground="#475569" FontSize="11.5" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

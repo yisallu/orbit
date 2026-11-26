@@ -1,0 +1,78 @@
+<Window x:Class="OpenGamepadCompanion.App.Views.SpiralKeyboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Orbit Virtual Keyboard"
+        Width="780" Height="318"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        Focusable="False">
+    <Border x:Name="OuterGlassBorder"
+            CornerRadius="20"
+            Background="#F00D1017"
+            BorderBrush="#2A364F"
+            BorderThickness="1.5"
+            Margin="12"
+            Padding="16,12,16,12">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="6" Opacity="0.68" Color="Black"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="22"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Minimal Drag Handle & Mode Dots -->
+            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnDragHandleMouseDown" Cursor="SizeAll">
+                <Border Width="42" Height="4" CornerRadius="2" Background="#2A344A" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,2,0,0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Border x:Name="CapsBadge" Background="#1E293B" CornerRadius="5" Padding="6,1" Margin="0,0,6,0" Visibility="Collapsed">
+                        <TextBlock Text="CAPS" FontSize="10" FontWeight="Bold" Foreground="#38BDF8"/>
+                    </Border>
+                    <Border x:Name="SymBadge" Background="#1E293B" CornerRadius="5" Padding="6,1" Visibility="Collapsed">
+                        <TextBlock Text="SYM" FontSize="10" FontWeight="Bold" Foreground="#10B981"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- 5-Row Full Ergonomic QWERTY Keycap Deck -->
+            <UniformGrid x:Name="RowsContainer" Grid.Row="1" Rows="5" Columns="1" Margin="0,4,0,6"/>
+
+            <!-- Minimalist Gamepad Shortcut Bar -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="LS / 十字键" Foreground="#38BDF8" FontSize="11" FontWeight="SemiBold" Margin="0,0,4,0"/>
+                <TextBlock Text="选键" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="A" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="输入" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="RB" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="空格" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="X" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="退格" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="LB" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="中/英" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="RT" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="大写" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="LT" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="符号" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="RS" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="光标/选词" Foreground="#64748B" FontSize="11" Margin="0,0,14,0"/>
+
+                <TextBlock Text="Start" Foreground="#38BDF8" FontSize="11" FontWeight="Bold" Margin="0,0,4,0"/>
+                <TextBlock Text="回车" Foreground="#64748B" FontSize="11"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
