@@ -131,6 +131,19 @@ public partial class App : Application
             // User declined UAC prompt -> continue in non-elevated mode with "--no-elevate" behavior
         }
 
+        // Once running as Administrator, retire legacy ControllerCompanion (prevents double-click & 2x cursor conflict)
+        // and disable Windows 11 native ControllerToVKMapping (prevents Explorer/Shell joystick arrow navigation conflict)
+        if (!isSelfTest && StartupManager.IsRunningAsAdministrator())
+        {
+            StartupManager.RetireLegacyControllerCompanion();
+
+            if (Config.Settings.ControllerSettings.DisableWindowsControllerNavigation &&
+                !StartupManager.IsWindowsControllerToVkDisabled())
+            {
+                StartupManager.SetWindowsControllerToVkDisabled(true);
+            }
+        }
+
         // Once running as Administrator, retire the standalone XboxDoubaoVoice task/process so it never double-triggers Share -> Right Alt
         if (!isSelfTest && StartupManager.IsRunningAsAdministrator() && Config.Settings.ShareVoiceSettings.Enabled)
         {

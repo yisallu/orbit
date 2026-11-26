@@ -49,6 +49,7 @@ public sealed class ControllerSettings
 
     public int LeftStickDeadZone { get; set; } = LeftStickDeadZoneDefault;
     public int RightStickDeadZone { get; set; } = RightStickDeadZoneDefault;
+    public bool DisableWindowsControllerNavigation { get; set; } = true;
 
     public ControllerSettings Clone() => (ControllerSettings)MemberwiseClone();
 }
@@ -152,6 +153,7 @@ public sealed class AppSettings
         {
             settings.ControllerSettings.LeftStickDeadZone = ReadInt(ctrl, "LeftStickDeadZone", ControllerSettings.LeftStickDeadZoneDefault);
             settings.ControllerSettings.RightStickDeadZone = ReadInt(ctrl, "RightStickDeadZone", ControllerSettings.RightStickDeadZoneDefault);
+            settings.ControllerSettings.DisableWindowsControllerNavigation = ReadBool(ctrl, "DisableWindowsControllerNavigation", true);
         }
 
         var disabler = root.Element("DisablerSettings");
@@ -207,7 +209,8 @@ public sealed class AppSettings
             ),
             new XElement("ControllerSettings",
                 new XElement("LeftStickDeadZone", ControllerSettings.LeftStickDeadZone),
-                new XElement("RightStickDeadZone", ControllerSettings.RightStickDeadZone)
+                new XElement("RightStickDeadZone", ControllerSettings.RightStickDeadZone),
+                new XElement("DisableWindowsControllerNavigation", ControllerSettings.DisableWindowsControllerNavigation.ToString().ToLowerInvariant())
             ),
             new XElement("DisablerSettings",
                 new XElement("PerProcessDisable", DisablerSettings.PerProcessDisable.ToString().ToLowerInvariant())

@@ -18,6 +18,7 @@
   <ControllerSettings>
     <LeftStickDeadZone>7849</LeftStickDeadZone>
     <RightStickDeadZone>8689</RightStickDeadZone>
+    <DisableWindowsControllerNavigation>true</DisableWindowsControllerNavigation>
   </ControllerSettings>
   <DisablerSettings>
     <PerProcessDisable>false</PerProcessDisable>

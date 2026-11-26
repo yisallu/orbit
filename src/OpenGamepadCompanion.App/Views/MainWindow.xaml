@@ -411,6 +411,14 @@
                                     <Border Height="1" Background="#2E2E35" Margin="16,0"/>
                                     <DockPanel Margin="16,12">
                                         <StackPanel>
+                                            <TextBlock Text="屏蔽 Windows 系统默认摇杆方向键导航" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
+                                            <TextBlock Text="关闭系统资源管理器/开始菜单自带的摇杆上下左右模拟（首次关闭需重启电脑生效）" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ToggleBlockWinNav" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OnBlockWinNavClick" Style="{StaticResource PillToggleStyle}"/>
+                                    </DockPanel>
+                                    <Border Height="1" Background="#2E2E35" Margin="16,0"/>
+                                    <DockPanel Margin="16,12">
+                                        <StackPanel>
                                             <TextBlock Text="按当前进程独立暂停（而非全局暂停）" FontSize="13.5" FontWeight="Medium" Foreground="#F5F5F7"/>
                                             <TextBlock Text="开启后按 Back + Start 仅将当前前台软件加入禁用名单，切回桌面仍保持可用" FontSize="11.5" Foreground="#8E8E93" Margin="0,2,0,0"/>
                                         </StackPanel>

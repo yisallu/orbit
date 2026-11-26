@@ -65,6 +65,81 @@ public static class StartupManager
         }
     }
 
+    public static bool IsWindowsControllerToVkDisabled()
+    {
+        try
+        {
+            using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Input\Settings\ControllerProcessor\ControllerToVKMapping");
+            var val = key?.GetValue("Enabled");
+            return val is int i && i == 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static (bool Success, string Message) SetWindowsControllerToVkDisabled(bool disabled)
+    {
+        try
+        {
+            using var key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Input\Settings\ControllerProcessor\ControllerToVKMapping");
+            key.SetValue("Enabled", disabled ? 0 : 1, RegistryValueKind.DWord);
+            return disabled
+                ? (true, "✓ 已写入屏蔽系统摇杆方向键映射（重启电脑后完全生效）")
+                : (true, "已恢复 Windows 默认手柄系统导航（重启电脑后生效）");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return (false, "需要管理员权限写入系统注册表，请以管理员身份运行 Orbit 后重试");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"修改系统手柄导航设置失败: {ex.Message}");
+        }
+    }
+
+    public static void RetireLegacyControllerCompanion()
+    {
+        try
+        {
+            foreach (var p in Process.GetProcessesByName("ControllerCompanion"))
+            {
+                try { p.Kill(); } catch { }
+            }
+
+            // Remove "controllercompanion" from HKCU Accessibility Configuration so atbroker.exe doesn't auto-launch it on login
+            using (var accKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows NT\CurrentVersion\Accessibility", writable: true))
+            {
+                if (accKey?.GetValue("Configuration") is string cfg &&
+                    cfg.Contains("controllercompanion", StringComparison.OrdinalIgnoreCase))
+                {
+                    var remaining = cfg
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Where(item => !item.Equals("controllercompanion", StringComparison.OrdinalIgnoreCase))
+                        .ToArray();
+                    accKey.SetValue("Configuration", string.Join(',', remaining), RegistryValueKind.String);
+                }
+            }
+
+            using (var runKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable: true))
+            {
+                if (runKey != null)
+                {
+                    foreach (var name in runKey.GetValueNames())
+                    {
+                        if (name.Contains("ControllerCompanion", StringComparison.OrdinalIgnoreCase))
+                            runKey.DeleteValue(name, throwOnMissingValue: false);
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Ignore
+        }
+    }
+
     public static void RetireLegacyXboxDoubaoVoice()
     {
         try

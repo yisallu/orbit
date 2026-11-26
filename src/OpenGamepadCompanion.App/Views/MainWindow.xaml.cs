@@ -650,6 +650,7 @@ public partial class MainWindow : Window
         ToggleSpiralRing.IsChecked = s.KeyboardSettings.Type == VirtualKeyboardType.Spiral;
         ToggleSteam.IsChecked = s.SteamSettings.ShowInAppInSteam;
         ToggleBlockGameBar.IsChecked = !StartupManager.IsWindowsGameBarCapturingGuideButton();
+        ToggleBlockWinNav.IsChecked = s.ControllerSettings.DisableWindowsControllerNavigation || StartupManager.IsWindowsControllerToVkDisabled();
         ToggleShareVoice.IsChecked = s.ShareVoiceSettings.Enabled;
         ToggleShareTapMode.IsChecked = s.ShareVoiceSettings.TapToggleMode;
 
@@ -1252,6 +1253,16 @@ public partial class MainWindow : Window
         bool block = ToggleBlockGameBar.IsChecked == true;
         StartupManager.SetWindowsGameBarGuideCapture(!block);
         StatusToastText.Text = block ? "✓ 已独占导航键" : "已恢复 Game Bar";
+    }
+
+    private void OnBlockWinNavClick(object sender, RoutedEventArgs e)
+    {
+        if (_loadingUi) return;
+        bool block = ToggleBlockWinNav.IsChecked == true;
+        _config.Settings.ControllerSettings.DisableWindowsControllerNavigation = block;
+        _config.SaveSettings();
+        var (_, msg) = StartupManager.SetWindowsControllerToVkDisabled(block);
+        StatusToastText.Text = msg;
     }
 
     private void OnRegisterSystemStartupClick(object sender, RoutedEventArgs e)

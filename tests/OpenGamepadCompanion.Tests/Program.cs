@@ -276,6 +276,29 @@ public static class Program
         poller.NextState = new NormalizedPadState { IsConnected = true, ConnectedCount = 1 };
         engine.Step(0.01);
         AssertEqual(CompanionStatus.Enabled, engine.CurrentStatus, "Back+Start overrides fullscreen auto-pause");
+
+        // 4. Double-click micro-jitter stabilization vs intentional drag
+        sim.Events.Clear();
+        tracker.Current = new ActiveProcessInfo("explorer", null, "This PC", false, (IntPtr)400);
+        // First click A with tiny accidental stick jitter (0.18)
+        poller.NextState = new NormalizedPadState { IsConnected = true, ConnectedCount = 1, RawButtons = XInputButtons.A, LeftStick = new StickVector(0.18f, 0.05f) };
+        engine.Step(0.04);
+        poller.NextState = new NormalizedPadState { IsConnected = true, ConnectedCount = 1, LeftStick = new StickVector(0.20f, -0.05f) };
+        engine.Step(0.05);
+        // Second click A within double-click window with tiny jitter
+        poller.NextState = new NormalizedPadState { IsConnected = true, ConnectedCount = 1, RawButtons = XInputButtons.A, LeftStick = new StickVector(0.15f, 0.0f) };
+        engine.Step(0.04);
+        poller.NextState = new NormalizedPadState { IsConnected = true, ConnectedCount = 1 };
+        engine.Step(0.02);
+        AssertEqual(2, sim.Events.Count(e => e == "Mouse:Left:Down"), "Double-click emits 2 Left Down events");
+        AssertEqual(2, sim.Events.Count(e => e == "Mouse:Left:Up"), "Double-click emits 2 Left Up events");
+        AssertEqual(0, sim.Events.Count(e => e.StartsWith("Move:")), "Micro stick jitter suppressed during rapid double-click");
+
+        // Intentional drag (hold A + strong stick push 0.65) breaks out immediately
+        sim.Events.Clear();
+        poller.NextState = new NormalizedPadState { IsConnected = true, ConnectedCount = 1, RawButtons = XInputButtons.A, LeftStick = new StickVector(0.65f, 0f) };
+        engine.Step(0.02);
+        AssertTrue(sim.Events.Any(e => e.StartsWith("Move:")), "Strong stick push while holding A drags immediately");
     }
 
     private static void VerifyBuiltInAndBundledDefaults()

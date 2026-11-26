@@ -35,6 +35,14 @@ public sealed class CompanionEngine : IDisposable
     private const double RepeatIntervalSeconds = 0.055;
     private const float DirectionalStickThreshold = 0.38f;
     private const int ScrollStepDelta = 120;
+    private const double ClickTapMaxHoldSeconds = 0.25;
+    private const double DoubleClickStabilizeWindowSeconds = 0.18;
+    private const double LeftDownMicroFreezeSeconds = 0.09;
+    private const float DoubleClickBreakoutStickThreshold = 0.35f;
+
+    private double _leftClickPressedAt = -10.0;
+    private double _doubleClickStabilizeUntil = -10.0;
+    private bool _leftDragIntentStarted;
 
     private readonly ConfigManager _config;
     private readonly IGamepadPoller _poller;
@@ -470,6 +478,11 @@ public sealed class CompanionEngine : IDisposable
         switch (action.Kind)
         {
             case ActionKind.MouseButton:
+                if (action.MouseButton == MouseButtonTarget.Left)
+                {
+                    _leftClickPressedAt = _totalSeconds;
+                    _leftDragIntentStarted = false;
+                }
                 _input.MouseButton(action.MouseButton, down: true);
                 _heldMouseButtons.Add(action.MouseButton);
                 break;
@@ -555,7 +568,15 @@ public sealed class CompanionEngine : IDisposable
         {
             case ActionKind.MouseButton:
                 if (_heldMouseButtons.Remove(action.MouseButton))
+                {
                     _input.MouseButton(action.MouseButton, down: false);
+                    if (action.MouseButton == MouseButtonTarget.Left &&
+                        !_leftDragIntentStarted &&
+                        (_totalSeconds - _leftClickPressedAt) <= ClickTapMaxHoldSeconds)
+                    {
+                        _doubleClickStabilizeUntil = _totalSeconds + DoubleClickStabilizeWindowSeconds;
+                    }
+                }
                 break;
 
             case ActionKind.KeyChord:
@@ -591,6 +612,25 @@ public sealed class CompanionEngine : IDisposable
             {
                 if (stickCtrl == PadControl.LeftStick)
                     ReleaseStickDirectionalKeys();
+
+                bool inLeftDownFreeze = _heldMouseButtons.Contains(MouseButtonTarget.Left)
+                                        && !_leftDragIntentStarted
+                                        && (_totalSeconds - _leftClickPressedAt) <= LeftDownMicroFreezeSeconds;
+                bool inPostClickWindow = _totalSeconds <= _doubleClickStabilizeUntil;
+
+                if (inLeftDownFreeze || inPostClickWindow)
+                {
+                    if (vec.Magnitude >= DoubleClickBreakoutStickThreshold)
+                    {
+                        _leftDragIntentStarted = true;
+                        _doubleClickStabilizeUntil = -10.0;
+                    }
+                    else
+                    {
+                        _mousePhysics.ResetMovement();
+                        break;
+                    }
+                }
 
                 var (dx, dy) = _mousePhysics.StepMovement(vec, dtSeconds, entry.Action.Inverted);
                 if (dx != 0 || dy != 0)
@@ -728,6 +768,8 @@ public sealed class CompanionEngine : IDisposable
         _activeDirectionalStickKeys.Clear();
         _activeBoundSlotByControl.Clear();
         _nextRepeatAt.Clear();
+        _doubleClickStabilizeUntil = -10.0;
+        _leftDragIntentStarted = false;
         _mousePhysics.ResetMovement();
     }
 
